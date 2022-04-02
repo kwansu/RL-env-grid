@@ -5,7 +5,7 @@ import numpy as np
 
 from abc import *
 from cell import *
-from render_process import *
+from environment.render_process import *
 
 
 class BaseEnvironment(ABC):

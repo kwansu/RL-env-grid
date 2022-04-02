@@ -1,5 +1,5 @@
 import numpy as np
-from base_environment import *
+from environment.base_environment import *
 
 
 class GridWorld(BaseEnvironment):

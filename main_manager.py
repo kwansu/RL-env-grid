@@ -2,7 +2,7 @@ import queue
 import pygame
 
 from agent import Agent
-from grid_world import GridWorld
+from environment.grid_world import GridWorld
 
 
 class MainManager:
