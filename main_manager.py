@@ -6,8 +6,7 @@ from environment.grid_world import GridWorld
 
 
 class MainManager:
-    def __init__(self, grid_size=(6, 6), object_infos=None) -> None:
-
+    def __init__(self, grid_size=(6, 6), img_dict=None) -> None:
         key_funcs = [
             (f"K_{s[4:].upper()}", s) if len(s) > 5 else (f"K_{s[4:]}", s)
             for s in dir(self)
@@ -23,10 +22,10 @@ class MainManager:
         self.key_queue = queue.Queue()
 
         self.agent = Agent(grid_size)
-        self.env = GridWorld(*grid_size, self.key_queue, key_funcs, object_infos)
+        self.env = GridWorld(*grid_size, self.key_queue, key_funcs, img_dict)
 
     def shutdown(self):
-        pass
+        self.env.shutdown()
 
     def put_mouse(self, pos):
         self.env.click_pos(pos)
@@ -49,6 +48,8 @@ class MainManager:
     def run(self):
         while self.env.is_running:
             self.key_put_procedure()
+        
+        self.shutdown()
 
     def key_put_procedure(self):
         while not self.key_queue.empty():

@@ -23,7 +23,7 @@ class BaseEnvironment(ABC):
         col,
         key_queue,
         hotkey_funcs={},
-        object_infos={},
+        img_dict={},
         state_length=100,
         render=True,
         back_color=(128, 128, 128),
@@ -46,14 +46,14 @@ class BaseEnvironment(ABC):
             self.selected_back_color = selected_back_color
 
             self.surface = None
-            self.setup_render(key_queue, hotkey_funcs, object_infos)
+            self.setup_render(key_queue, hotkey_funcs, img_dict)
             self.redraw()
 
     def draw_values(self, state_values):
         assert state_values.shape == self.state_shape
         for x in range(self.state_shape[0]):
             for y in range(self.state_shape[1]):
-                self.draw_text(str(round(state_values[x, y], 2)), x, y)
+                self.draw_text(str(round(state_values[x, y], 3)), x, y)
 
     def draw_policy(self, policy):
         for x in range(self.state_shape[0]):
@@ -102,7 +102,7 @@ class BaseEnvironment(ABC):
         y = (self.state_length - h) // 2 + y * self.state_length
         self.surface.blit(text, (x, y))
 
-    def setup_render(self, key_queue, hotkey_funcs, object_infos={}):
+    def setup_render(self, key_queue, hotkey_funcs, img_dict={}):
         pygame.font.init()
         self.font = pygame.font.SysFont("consolas", 15, True)
 
@@ -122,7 +122,7 @@ class BaseEnvironment(ABC):
 
         self.sprites = {
             key: pygame.transform.scale(pygame.image.load(path), in_size)
-            for key, path in object_infos.items()
+            for key, path in img_dict.items()
         }
 
     def quit_callback(self):
