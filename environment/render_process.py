@@ -31,15 +31,6 @@ def render_process(env, key_queue, hotkey_dict={}):
         pygame.quit()
 
 
-def draw_grid(surface, row, col):
-    width, height = surface.get_size()
-
-    for x in range(0, width, width // row):
-        pygame.draw.line(surface, (0, 0, 0, 50), (x, 0), (x, height))
-    for y in range(0, height, height // col):
-        pygame.draw.line(surface, (0, 0, 0, 50), (0, y), (width, y))
-
-
 def quit_pygame():
     quit_event = pygame.event.Event(pygame.QUIT)
     pygame.event.post(quit_event)

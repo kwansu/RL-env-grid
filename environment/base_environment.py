@@ -87,12 +87,18 @@ class BaseEnvironment(ABC):
             )
             pygame.display.flip()
 
-            draw_grid(self.surface, row, col + 1)
+            self.draw_grid()
 
             for line in self.states:
                 for state in line:
                     if state.type:
                         state.draw(self.surface)
+
+    def draw_grid(self):
+        for x in range(0, self.window_size[0], self.state_length):
+            pygame.draw.line(self.surface, (0, 0, 0, 50), (x, 0), (x, self.window_size[1]))
+        for y in range(0, self.window_size[1], self.state_length):
+            pygame.draw.line(self.surface, (0, 0, 0, 50), (0, y), (self.window_size[0], y))
 
     def draw_text(self, text, x, y, color=(0, 0, 255)):
         self.states[x, y].redraw(self.surface, self.state_length - 1, self.back_color)

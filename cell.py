@@ -18,9 +18,20 @@ class Cell:
 
 
 class State(Cell):
+    render_policy = False
+    render_value = False
+
     def __init__(self, x, y, length):
         super().__init__(x, y, length)
         self.reward = -1
+        self.value = 0.0
+        self.policy = [0.0] * 4
+
+    def draw(self, surface):
+        # self.redraw()
+        # if self.render_policy:
+
+        return super().draw(surface)
 
     def step(self, action):
         x, y = self.pos
