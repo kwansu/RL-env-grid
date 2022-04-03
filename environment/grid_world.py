@@ -108,3 +108,8 @@ class GridWorld(BaseEnvironment):
                 self.selected_cell.redraw(
                     self.surface, self.state_length, self.selected_back_color
                 )
+
+    def draw_values(self, state_values):
+        assert state_values.shape == self.state_shape
+        for state, value in zip(self.states, state_values):
+            state(str(round(value, 3)))
