@@ -2,17 +2,19 @@ import pygame
 
 
 class Cell:
-    def __init__(self, x, y, length):
+    l = 0.0
+
+    def __init__(self, x, y):
         self.pos = (x, y)
-        self.top_left = (x * length + 1, y * length + 1)
+        self.top_left = (x * self.l + 1, y * self.l + 1)
         self.type = None
         self.sprite = None
 
     def draw(self, surface):
         surface.blit(self.sprite, self.top_left)
 
-    def redraw(self, surface, length, back_color):
-        pygame.draw.rect(surface, back_color, self.top_left + (length, length))
+    def redraw(self, surface, back_color):
+        pygame.draw.rect(surface, back_color, self.top_left + (self.l, self.l))
         if self.sprite:
             surface.blit(self.sprite, self.top_left)
 
@@ -21,17 +23,28 @@ class State(Cell):
     render_policy = False
     render_value = False
 
-    def __init__(self, x, y, length):
-        super().__init__(x, y, length)
+    def __init__(self, x, y):
+        super().__init__(x, y)
         self.reward = -1
-        self.value = 0.0
+        self.value = None
         self.policy = [0.0] * 4
 
     def draw(self, surface):
-        # self.redraw()
-        # if self.render_policy:
-
+        self.redraw()
+        if self.render_value:
+            surface.blit(self.value, self.text_top_left)
+        
         return super().draw(surface)
+
+    def set_value(self, text, font, color=(0, 0, 255)):
+        self.value = font.render(text, True, color)
+        w, h = self.value.get_size()
+        x = (self.l - w) >> 1 + self.pos[0] * self.l
+        y = (self.l - h) >> 1 + self.pos[1] * self.l
+        self.text_top_left = (x, y)
+
+    def set_policy(self):
+        pass
 
     def step(self, action):
         x, y = self.pos
@@ -47,8 +60,8 @@ class State(Cell):
 
 
 class Puser(State):
-    def __init__(self, x, y, length, move, sprite):
-        super().__init__(x, y, length)
+    def __init__(self, x, y, move, sprite):
+        super().__init__(x, y)
         self.sprite = sprite
         self.move = move
 
@@ -60,20 +73,20 @@ class Puser(State):
 
 
 class PuserUp(Puser):
-    def __init__(self, x, y, length, sprite=None):
-        super().__init__(x, y, length, (0, -1), sprite)
+    def __init__(self, x, y, sprite=None):
+        super().__init__(x, y, (0, -1), sprite)
 
 
 class PuserDown(Puser):
-    def __init__(self, x, y, length, sprite=None):
-        super().__init__(x, y, length, (0, 1), sprite)
+    def __init__(self, x, y, sprite=None):
+        super().__init__(x, y, (0, 1), sprite)
 
 
 class PuserLeft(Puser):
-    def __init__(self, x, y, length, sprite=None):
-        super().__init__(x, y, length, (-1, 0), sprite)
+    def __init__(self, x, y, sprite=None):
+        super().__init__(x, y, (-1, 0), sprite)
 
 
 class PuserRight(Puser):
-    def __init__(self, x, y, length, sprite=None):
-        super().__init__(x, y, length, (1, 0), sprite)
+    def __init__(self, x, y, sprite=None):
+        super().__init__(x, y, (1, 0), sprite)

@@ -32,9 +32,8 @@ class BaseEnvironment(ABC):
     ):
         self.is_running = True
         self.state_length = state_length
-        self.states = np.array(
-            [[State(x, y, self.state_length) for y in range(col)] for x in range(row)]
-        )
+        Cell.l = self.state_length
+        self.states = np.array([[State(x, y) for y in range(col)] for x in range(row)])
         self.window_size = (row * state_length, (col + 1) * state_length)
         self.state_shape = (row, col)
         self.actions = ("up", "down", "left", "right")
@@ -48,24 +47,6 @@ class BaseEnvironment(ABC):
             self.surface = None
             self.setup_render(key_queue, hotkey_funcs, img_dict)
             self.redraw()
-
-    def draw_values(self, state_values):
-        assert state_values.shape == self.state_shape
-        for x in range(self.state_shape[0]):
-            for y in range(self.state_shape[1]):
-                self.draw_text(str(round(state_values[x, y], 3)), x, y)
-
-    def draw_policy(self, policy):
-        for x in range(self.state_shape[0]):
-            for y in range(self.state_shape[1]):
-                if self.states[x, y].type != "goal":
-                    for i, p in enumerate(policy[x, y]):
-                        sprite = self.sprites[self.actions[i]]
-                        sprite.set_alpha(p * 255)
-                        self.surface.blit(
-                            sprite,
-                            (x * self.state_length + 1, y * self.state_length + 1),
-                        )
 
     def shutdown(self):
         if self.render and self.is_running:
@@ -95,18 +76,11 @@ class BaseEnvironment(ABC):
                         state.draw(self.surface)
 
     def draw_grid(self):
-        for x in range(0, self.window_size[0], self.state_length):
-            pygame.draw.line(self.surface, (0, 0, 0, 50), (x, 0), (x, self.window_size[1]))
-        for y in range(0, self.window_size[1], self.state_length):
-            pygame.draw.line(self.surface, (0, 0, 0, 50), (0, y), (self.window_size[0], y))
-
-    def draw_text(self, text, x, y, color=(0, 0, 255)):
-        self.states[x, y].redraw(self.surface, self.state_length - 1, self.back_color)
-        text = self.font.render(text, True, color)
-        w, h = text.get_size()
-        x = (self.state_length - w) // 2 + x * self.state_length
-        y = (self.state_length - h) // 2 + y * self.state_length
-        self.surface.blit(text, (x, y))
+        w, h = self.window_size
+        for x in range(0, w, self.state_length):
+            pygame.draw.line(self.surface, (0, 0, 0, 50), (x, 0), (x, h))
+        for y in range(0, h, self.state_length):
+            pygame.draw.line(self.surface, (0, 0, 0, 50), (0, y), (w, y))
 
     def setup_render(self, key_queue, hotkey_funcs, img_dict={}):
         pygame.font.init()
