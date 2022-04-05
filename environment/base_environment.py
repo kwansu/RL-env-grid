@@ -25,7 +25,6 @@ class BaseEnvironment(ABC):
         hotkey_funcs={},
         img_dict={},
         state_length=100,
-        render=True,
         back_color=(128, 128, 128),
         item_back_color=(255, 255, 128),
         selected_back_color=(180, 70, 200),
@@ -38,18 +37,16 @@ class BaseEnvironment(ABC):
         self.state_shape = (row, col)
         self.actions = ("up", "down", "left", "right")
 
-        self.render = render
-        if render:
-            self.back_color = back_color
-            self.item_back_color = item_back_color
-            self.selected_back_color = selected_back_color
+        self.back_color = back_color
+        self.item_back_color = item_back_color
+        self.selected_back_color = selected_back_color
 
-            self.surface = None
-            self.setup_render(key_queue, hotkey_funcs, img_dict)
-            self.redraw()
+        self.surface = None
+        self.setup_render(key_queue, hotkey_funcs, img_dict)
+        self.redraw()
 
     def shutdown(self):
-        if self.render and self.is_running:
+        if self.is_running:
             try:
                 quit_pygame()
                 self.render_thread.join(timeout=10)
@@ -59,21 +56,20 @@ class BaseEnvironment(ABC):
                 print("render thread shutdown.")
 
     def redraw(self):
-        if self.render:
-            row, col = self.state_shape
-            self.surface.fill(self.item_back_color)
-            self.surface.fill(
-                self.back_color,
-                (0, 0, self.state_length * row, self.state_length * col),
-            )
-            pygame.display.flip()
+        row, col = self.state_shape
+        self.surface.fill(self.item_back_color)
+        self.surface.fill(
+            self.back_color,
+            (0, 0, self.state_length * row, self.state_length * col),
+        )
+        pygame.display.flip()
 
-            self.draw_grid()
+        self.draw_grid()
 
-            for line in self.states:
-                for state in line:
-                    if state.type:
-                        state.draw(self.surface)
+        for line in self.states:
+            for state in line:
+                if state.type:
+                    state.draw(self.surface, self.back_color)
 
     def draw_grid(self):
         w, h = self.window_size
@@ -104,6 +100,12 @@ class BaseEnvironment(ABC):
             key: pygame.transform.scale(pygame.image.load(path), in_size)
             for key, path in img_dict.items()
         }
+        State.policy_sprites = [
+            self.sprites["up"],
+            self.sprites["down"],
+            self.sprites["left"],
+            self.sprites["right"],
+        ]
 
     def quit_callback(self):
         self.is_running = False

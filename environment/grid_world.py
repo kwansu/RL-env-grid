@@ -28,16 +28,15 @@ class GridWorld(BaseEnvironment):
 
     def reset(self):
         self.agent_pos = self.start_pos
-        if self.render:
-            self.redraw()
-            for cell in self.controls:
-                if cell.sprite:
-                    cell.draw(self.surface)
+        self.redraw()
+        for cell in self.controls:
+            if cell.sprite:
+                cell.draw(self.surface)
 
-            if self.enable_agent_render:
-                self.surface.blit(
-                    self.sprites["player"], self.agent_pos * self.state_length
-                )
+        # if self.enable_agent_render:
+        #     self.surface.blit(
+        #         self.sprites["player"], self.agent_pos * self.state_length
+        #     )
         return tuple(self.agent_pos)
 
     def simulate(self, state, action):
@@ -104,19 +103,18 @@ class GridWorld(BaseEnvironment):
                 self.selected_cell.redraw(self.surface, self.selected_back_color)
 
     def draw_values(self, state_values):
-        for state, value in zip(np.nditer(self.states), np.nditer(state_values)):
-            state.set_value(str(round(value, 3)))
-            state.draw()
+        assert state_values.shape == self.state_shape
+        for o, v in zip(np.nditer(self.states, ["refs_ok"]), np.nditer(state_values)):
+            state = o.item()
+            state.set_value(str(np.round(v, 3)), self.font)
+            state.draw(self.surface, self.back_color)
 
     def draw_policy(self, policy):
-        assert policy.shape == self.state_shape
+        assert policy.shape[:2] == self.state_shape
         for x in range(self.state_shape[0]):
             for y in range(self.state_shape[1]):
-                if self.states[x, y].type != "goal":
-                    for i, p in enumerate(policy[x, y]):
-                        sprite = self.sprites[self.actions[i]]
-                        sprite.set_alpha(p * 255)
-                        self.surface.blit(
-                            sprite,
-                            (x * self.state_length + 1, y * self.state_length + 1),
-                        )
+                state = self.states[x, y]
+                if state.type != "goal":
+                    state.set_policy(policy[x, y])
+                    state.draw(self.surface, self.back_color)
+        

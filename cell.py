@@ -9,12 +9,13 @@ class Cell:
         self.top_left = (x * self.l + 1, y * self.l + 1)
         self.type = None
         self.sprite = None
+        self.back_color = None
 
     def draw(self, surface):
         surface.blit(self.sprite, self.top_left)
 
     def redraw(self, surface, back_color):
-        pygame.draw.rect(surface, back_color, self.top_left + (self.l, self.l))
+        pygame.draw.rect(surface, back_color, self.top_left + (self.l - 2, self.l - 2))
         if self.sprite:
             surface.blit(self.sprite, self.top_left)
 
@@ -22,6 +23,7 @@ class Cell:
 class State(Cell):
     render_policy = False
     render_value = False
+    policy_sprites = None
 
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -29,22 +31,24 @@ class State(Cell):
         self.value = None
         self.policy = [0.0] * 4
 
-    def draw(self, surface):
-        self.redraw()
+    def draw(self, surface, back_color):
+        self.redraw(surface, back_color)
         if self.render_value:
             surface.blit(self.value, self.text_top_left)
-        
-        return super().draw(surface)
+        if self.render_policy:
+            for sprite, p in zip(self.policy_sprites, self.policy):
+                sprite.set_alpha(p * 255)
+                surface.blit(sprite, self.top_left)
 
     def set_value(self, text, font, color=(0, 0, 255)):
         self.value = font.render(text, True, color)
         w, h = self.value.get_size()
-        x = (self.l - w) >> 1 + self.pos[0] * self.l
-        y = (self.l - h) >> 1 + self.pos[1] * self.l
+        x = (self.l - w) // 2 + self.pos[0] * self.l
+        y = (self.l - h) // 2 + self.pos[1] * self.l
         self.text_top_left = (x, y)
 
-    def set_policy(self):
-        pass
+    def set_policy(self, policy):
+        self.policy = policy.copy()
 
     def step(self, action):
         x, y = self.pos
