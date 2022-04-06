@@ -3,12 +3,12 @@ import pygame
 
 class Cell:
     l = 0.0
+    max_x, max_y = 0, 0
+    sprite = None
 
     def __init__(self, x, y):
         self.pos = (x, y)
         self.top_left = (x * self.l + 1, y * self.l + 1)
-        self.type = None
-        self.sprite = None
         self.back_color = None
 
     def draw(self, surface):
@@ -19,14 +19,19 @@ class Cell:
         if self.sprite:
             surface.blit(self.sprite, self.top_left)
 
+    @staticmethod
+    def fix_pos(x, y):
+        return max(min(x, Cell.max_x), 0), max(min(y, Cell.max_y), 0)
+
 
 class State(Cell):
     render_policy = False
     render_value = False
     policy_sprites = None
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, is_terminal=False):
         super().__init__(x, y)
+        self.is_terminal = is_terminal
         self.reward = -1
         self.value = None
         self.policy = [0.0] * 4
@@ -50,7 +55,7 @@ class State(Cell):
     def set_policy(self, policy):
         self.policy = policy.copy()
 
-    def step(self, action):
+    def get_transition_prob(self, action):
         x, y = self.pos
         if action == "up":
             y -= 1
@@ -60,7 +65,21 @@ class State(Cell):
             x -= 1
         else:
             x += 1
-        return x, y
+        return {self.fix_pos(x, y): 1.0}
+
+
+class Goal(State):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.is_terminal = True
+        self.reward = 20
+
+
+class Trap(State):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.is_terminal = True
+        self.reward = -20
 
 
 class Puser(State):
@@ -69,11 +88,17 @@ class Puser(State):
         self.sprite = sprite
         self.move = move
 
-    def step(self, action):
+    def get_transition_prob(self, action):
         x, y = self.pos
-        x += self.move[0] * 100
-        y += self.move[1] * 100
-        return x, y
+        if action == "up":
+            y = 0
+        elif action == "down":
+            y = self.max_y
+        elif action == "left":
+            x = 0
+        else:
+            x = self.max_x
+        return {(x, y): 1.0}
 
 
 class PuserUp(Puser):

@@ -1,13 +1,15 @@
 import numpy as np
+from states import *
 
 
 class Agent:
-    def __init__(self, size):
+    def __init__(self, size, action_size=4, gamma=0.9):
         self.size = size
-        self.action_size = 4
+        self.action_size = action_size
         self.state_values = np.zeros(size)
         self.policy = np.ones((*size, self.action_size)) * (1 / self.action_size)
-        self.actions = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+        self.actions = ["up", "down", "left", "right"]
+        self.gamma = gamma
 
     def reset(self):
         self.policy = np.ones((*self.size, self.action_size)) * (1 / self.action_size)
@@ -18,14 +20,14 @@ class Agent:
         row, col = self.state_values.shape
         for x in range(row):
             for y in range(col):
-                if states[x][y].type == "goal":
+                a = states[x, y]
+                if a.is_terminal:
                     continue
-                updated_score = 0
-                for (dx, dy), p in zip(self.actions.values(), self.policy[x, y]):
-                    i = max(0, min(x + dx, row - 1))
-                    j = max(0, min(y + dy, col - 1))
-                    updated_score += copy[i, j] * p - 1
-                self.state_values[x, y] = updated_score / 4
+                new_v = 0
+                for action, ps in zip(self.actions, self.policy[x, y]):
+                    for pos, p in states[x, y].get_transition_prob(action).items():
+                        new_v += ps * p * (states[pos].reward + self.gamma * copy[pos])
+                self.state_values[x, y] = new_v
 
     def imporve_policy(self):
         row, col = self.state_values.shape

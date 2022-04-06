@@ -4,7 +4,7 @@ import threading
 import numpy as np
 
 from abc import *
-from cell import *
+from states import *
 from environment.render_process import *
 
 
@@ -68,7 +68,7 @@ class BaseEnvironment(ABC):
 
         for line in self.states:
             for state in line:
-                if state.type:
+                if state.sprite:
                     state.draw(self.surface, self.back_color)
 
     def draw_grid(self):

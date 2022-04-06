@@ -1,7 +1,7 @@
 import queue
 import pygame
 
-from cell import *
+from states import *
 from agent import Agent
 from environment.grid_world import GridWorld
 

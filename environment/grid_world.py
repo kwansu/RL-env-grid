@@ -13,15 +13,16 @@ class GridWorld(BaseEnvironment):
 
         self.start_pos = np.array(start_pos, dtype=int)
 
-        self.selected_cell = None
+        self.selected_idx = None
 
-        self.controls = tuple(Cell(x, col) for x in range(row))
+        self.controls = [State(x, col) for x in range(row)]
         self.controls[0].sprite = self.sprites["left_item"]
         self.controls[-1].sprite = self.sprites["right_item"]
-        self.items = (None, "goal")
+        self.items = (State(0, 0), Goal(0, 0))
+        self.controls[1:3] = self.items
 
-        self.start_item_index = 0
-        self.max_start_item_index = max(1, len(self.items) - row + 1)
+        self.start_item = 0
+        self.max_item = max(1, len(self.items) - row + 1)
         self.update_item()
 
         self.reset()
@@ -29,9 +30,9 @@ class GridWorld(BaseEnvironment):
     def reset(self):
         self.agent_pos = self.start_pos
         self.redraw()
-        for cell in self.controls:
-            if cell.sprite:
-                cell.draw(self.surface)
+        for state in self.controls:
+            if state.sprite:
+                state.draw(self.surface, self.item_back_color)
 
         # if self.enable_agent_render:
         #     self.surface.blit(
@@ -40,35 +41,17 @@ class GridWorld(BaseEnvironment):
         return tuple(self.agent_pos)
 
     def simulate(self, state, action):
-        if not isinstance(state, State):
-            state = self.states[state]
-            state.step(action)
-        return
+        pass
+        # if not isinstance(state, State):
+        #     state = self.states[state]
+        # x, y = state.step(action)
+        # return (x, y), self.states[x, y].reward
 
     def update_item(self):
-        for item, cell in zip(self.items[self.start_item_index :], self.controls[1:]):
-            cell.type = item
-            cell.sprite = self.sprites[item] if item else None
-        if self.selected_cell:
-            self.selected_cell.redraw(self.surface, self.item_back_color)
-            self.selected_cell = None
-
-    # def play_one_step(self, action):
-    #     self.states[self.agent_pos].redraw(
-    #         self.surface, self.back_color
-    #     )
-    #     self.agent_pos += self.moves[action]
-    #     self.agent_pos.clip(
-    #         0, (self.state_shape[0] - 1, self.state_shape[1] - 1), out=self.agent_pos
-    #     )
-
-    #     self.surface.blit(self.sprites["agent"], self.agent_pos * self.state_length)
-    #     next_state = tuple(self.agent_pos)
-    #     state: state = self.states[self.agent_pos]
-    #     terminal = state.type == "goal"
-    #     reward = state.reward
-
-    #     return next_state, reward, terminal
+        for item, i in zip(self.items[self.start_item :], range(1, len(self.controls) - 2)):
+            self.controls[i] = item
+            self.controls[i].redraw(self.surface, self.item_back_color)
+        self.selected_idx = None
 
     def click_pos(self, pos):
         if pos > (0, 0) and pos < self.window_size:
@@ -76,31 +59,31 @@ class GridWorld(BaseEnvironment):
             if y >= self.state_shape[1]:
                 self.select_item(x)
             else:
-                self.change_state(self.states[x, y])
+                self.change_state((x, y))
 
-    def change_state(self, state):
-        if self.selected_cell:
-            state.type = self.selected_cell.type
-            state.sprite = self.sprites[state.type] if state.type else None
-            state.redraw(self.surface, self.back_color)
+    def change_state(self, pos):
+        if self.selected_idx:
+            self.states[pos] = type(self.controls[self.selected_idx])(*pos)
+            self.states[pos].sprite = self.controls[self.selected_idx].sprite
+            self.states[pos].redraw(self.surface, self.back_color)
 
     def select_item(self, x):
         if x == 0:
-            self.start_item_index = min(
-                max(self.start_item_index - 1, 0), self.max_start_item_index
-            )
+            self.start_item = min(max(self.start_item - 1, 0), self.max_item)
             self.update_item()
         elif x == self.state_shape[1] - 1:
-            self.start_item_index = min(
-                max(self.start_item_index + 1, 0), self.max_start_item_index
-            )
+            self.start_item = min(max(self.start_item + 1, 0), self.max_item)
             self.update_item()
         else:
-            if self.selected_cell:
-                self.selected_cell.redraw(self.surface, self.item_back_color)
-            self.selected_cell = self.controls[self.start_item_index + x]
-            if self.selected_cell:
-                self.selected_cell.redraw(self.surface, self.selected_back_color)
+            if self.selected_idx:
+                self.controls[self.selected_idx].redraw(
+                    self.surface, self.item_back_color
+                )
+            self.selected_idx = self.start_item + x
+            if self.selected_idx:
+                self.controls[self.selected_idx].redraw(
+                    self.surface, self.selected_back_color
+                )
 
     def draw_values(self, state_values):
         assert state_values.shape == self.state_shape
@@ -114,7 +97,7 @@ class GridWorld(BaseEnvironment):
         for x in range(self.state_shape[0]):
             for y in range(self.state_shape[1]):
                 state = self.states[x, y]
-                if state.type != "goal":
+                if not state.is_terminal:
                     state.set_policy(policy[x, y])
                     state.draw(self.surface, self.back_color)
-        
+
