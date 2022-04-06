@@ -20,28 +20,34 @@ class Agent:
         row, col = self.state_values.shape
         for x in range(row):
             for y in range(col):
-                a = states[x, y]
-                if a.is_terminal:
+                if states[x, y].is_terminal:
                     continue
                 new_v = 0
-                for action, ps in zip(self.actions, self.policy[x, y]):
-                    for pos, p in states[x, y].get_transition_prob(action).items():
-                        new_v += ps * p * (states[pos].reward + self.gamma * copy[pos])
+                for action, pa in zip(self.actions, self.policy[x, y]):
+                    for pos, p in states[x, y].get_action_trans_prob(action).items():
+                        new_v += pa * p * (states[pos].reward + self.gamma * copy[pos])
                 self.state_values[x, y] = new_v
 
-    def imporve_policy(self):
+    def imporve_policy(self, states):
         row, col = self.state_values.shape
         for x in range(row):
             for y in range(col):
-                max_value = -1000.0
-                for n, (dx, dy) in enumerate(self.actions.values()):
-                    i = max(0, min(x + dx, row - 1))
-                    j = max(0, min(y + dy, col - 1))
-                    if self.state_values[i, j] > max_value:
-                        max_value, max_count = self.state_values[i, j], 1
+                max_q = float("-inf")
+                for i, action in enumerate(self.actions):
+                    q = 0
+                    for pos, p in states[x, y].get_action_trans_prob(action).items():
+                        q += p * (states[pos].reward + self.gamma * self.state_values[pos])
+                    # q = sum(
+                    #     [
+                    #         p * (states[pos].reward + self.gamma * states[pos])
+                    #         for pos, p in states[x, y].get__action_trans_prob(action)
+                    #     ]
+                    # )
+                    if q > max_q:
+                        max_q, max_count = q, 1
                         self.policy[x, y, :] = 0
-                        self.policy[x, y, n] = 1
-                    elif self.state_values[i, j] == max_value:
+                        self.policy[x, y, i] = 1
+                    elif q == max_q:
                         max_count += 1
-                        self.policy[x, y, n] = 1
+                        self.policy[x, y, i] = 1
                 self.policy[x, y] /= max_count

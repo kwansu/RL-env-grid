@@ -3,7 +3,7 @@ from environment.base_environment import *
 
 
 class GridWorld(BaseEnvironment):
-    def __init__(self, row, col, *args):
+    def __init__(self, row, col, items, *args):
         super().__init__(row, col, *args)
         start_pos = (0, 0)
         self.agent_pos = np.ones(2, dtype=int)
@@ -18,11 +18,10 @@ class GridWorld(BaseEnvironment):
         self.controls = [State(x, col) for x in range(row)]
         self.controls[0].sprite = self.sprites["left_item"]
         self.controls[-1].sprite = self.sprites["right_item"]
-        self.items = (State(0, 0), Goal(0, 0))
-        self.controls[1:3] = self.items
+        self.items = tuple([state(0, 0) for state in items])
 
         self.start_item = 0
-        self.max_item = max(1, len(self.items) - row + 1)
+        self.max_item = max(0, len(self.items) - row + 2)
         self.update_item()
 
         self.reset()
@@ -48,10 +47,16 @@ class GridWorld(BaseEnvironment):
         # return (x, y), self.states[x, y].reward
 
     def update_item(self):
-        for item, i in zip(self.items[self.start_item :], range(1, len(self.controls) - 2)):
+        for item, i in zip(
+            self.items[self.start_item :], range(1, len(self.controls) - 1)
+        ):
+            item.copy_info(self.controls[i])
             self.controls[i] = item
             self.controls[i].redraw(self.surface, self.item_back_color)
-        self.selected_idx = None
+
+        if self.selected_idx:
+            self.controls[self.selected_idx].redraw(self.surface, self.item_back_color)
+            self.selected_idx = None
 
     def click_pos(self, pos):
         if pos > (0, 0) and pos < self.window_size:
@@ -71,7 +76,7 @@ class GridWorld(BaseEnvironment):
         if x == 0:
             self.start_item = min(max(self.start_item - 1, 0), self.max_item)
             self.update_item()
-        elif x == self.state_shape[1] - 1:
+        elif x == self.state_shape[0] - 1:
             self.start_item = min(max(self.start_item + 1, 0), self.max_item)
             self.update_item()
         else:

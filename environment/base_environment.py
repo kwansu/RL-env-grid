@@ -1,7 +1,9 @@
 import time
 import pygame
+import inspect
 import threading
 import numpy as np
+
 
 from abc import *
 from states import *
@@ -32,6 +34,7 @@ class BaseEnvironment(ABC):
         self.is_running = True
         self.state_length = state_length
         Cell.l = self.state_length
+        Cell.max_x, Cell.max_y = row - 1, col - 1
         self.states = np.array([[State(x, y) for y in range(col)] for x in range(row)])
         self.window_size = (row * state_length, (col + 1) * state_length)
         self.state_shape = (row, col)
@@ -59,8 +62,7 @@ class BaseEnvironment(ABC):
         row, col = self.state_shape
         self.surface.fill(self.item_back_color)
         self.surface.fill(
-            self.back_color,
-            (0, 0, self.state_length * row, self.state_length * col),
+            self.back_color, (0, 0, self.state_length * row, self.state_length * col),
         )
         pygame.display.flip()
 
@@ -100,6 +102,13 @@ class BaseEnvironment(ABC):
             key: pygame.transform.scale(pygame.image.load(path), in_size)
             for key, path in img_dict.items()
         }
+
+        module = __import__("states", fromlist=[None])
+        for class_name, _class in inspect.getmembers(module, inspect.isclass):
+            class_name = class_name.lower()
+            if class_name in self.sprites.keys():
+                _class.sprite = self.sprites[class_name]
+
         State.policy_sprites = [
             self.sprites["up"],
             self.sprites["down"],

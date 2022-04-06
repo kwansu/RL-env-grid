@@ -7,7 +7,7 @@ from environment.grid_world import GridWorld
 
 
 class MainManager:
-    def __init__(self, grid_size=(6, 6), img_dict=None) -> None:
+    def __init__(self, grid_size=(6, 6), img_dict=None, items=[]):
         key_funcs = [
             (f"K_{s[4:].upper()}", s) if len(s) > 5 else (f"K_{s[4:]}", s)
             for s in dir(self)
@@ -23,7 +23,7 @@ class MainManager:
         self.key_queue = queue.Queue()
 
         self.agent = Agent(grid_size)
-        self.env = GridWorld(*grid_size, self.key_queue, key_funcs, img_dict)
+        self.env = GridWorld(*grid_size, items, self.key_queue, key_funcs, img_dict)
 
     def shutdown(self):
         self.env.shutdown()
@@ -41,7 +41,7 @@ class MainManager:
 
     def put_t(self, key):
         State.render_policy = True
-        self.agent.imporve_policy()
+        self.agent.imporve_policy(self.env.states)
         self.env.draw_policy(self.agent.policy)
 
     def put_r(self, key):

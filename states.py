@@ -35,10 +35,15 @@ class State(Cell):
         self.reward = -1
         self.value = None
         self.policy = [0.0] * 4
+        self.text_top_left = None
+
+    def copy_info(self, state):
+        self.pos = state.pos
+        self.top_left = state.top_left
 
     def draw(self, surface, back_color):
         self.redraw(surface, back_color)
-        if self.render_value:
+        if self.render_value and self.text_top_left:
             surface.blit(self.value, self.text_top_left)
         if self.render_policy:
             for sprite, p in zip(self.policy_sprites, self.policy):
@@ -55,7 +60,7 @@ class State(Cell):
     def set_policy(self, policy):
         self.policy = policy.copy()
 
-    def get_transition_prob(self, action):
+    def get_action_trans_prob(self, action):
         x, y = self.pos
         if action == "up":
             y -= 1
@@ -82,13 +87,8 @@ class Trap(State):
         self.reward = -20
 
 
-class Puser(State):
-    def __init__(self, x, y, move, sprite):
-        super().__init__(x, y)
-        self.sprite = sprite
-        self.move = move
-
-    def get_transition_prob(self, action):
+class Pusher(State):
+    def get_action_trans_prob(self, action):
         x, y = self.pos
         if action == "up":
             y = 0
@@ -101,21 +101,21 @@ class Puser(State):
         return {(x, y): 1.0}
 
 
-class PuserUp(Puser):
-    def __init__(self, x, y, sprite=None):
-        super().__init__(x, y, (0, -1), sprite)
+# class PuserUp(Puser):
+#     def __init__(self, x, y, sprite=None):
+#         super().__init__(x, y, (0, -1), sprite)
 
 
-class PuserDown(Puser):
-    def __init__(self, x, y, sprite=None):
-        super().__init__(x, y, (0, 1), sprite)
+# class PuserDown(Puser):
+#     def __init__(self, x, y, sprite=None):
+#         super().__init__(x, y, (0, 1), sprite)
 
 
-class PuserLeft(Puser):
-    def __init__(self, x, y, sprite=None):
-        super().__init__(x, y, (-1, 0), sprite)
+# class PuserLeft(Puser):
+#     def __init__(self, x, y, sprite=None):
+#         super().__init__(x, y, (-1, 0), sprite)
 
 
-class PuserRight(Puser):
-    def __init__(self, x, y, sprite=None):
-        super().__init__(x, y, (1, 0), sprite)
+# class PuserRight(Puser):
+#     def __init__(self, x, y, sprite=None):
+#         super().__init__(x, y, (1, 0), sprite)
