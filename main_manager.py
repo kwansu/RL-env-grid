@@ -24,7 +24,12 @@ class MainManager:
 
         self.agent = Agent(grid_size)
         self.env = GridWorld(
-            *grid_size, items, self.key_queue, key_funcs, img_dict, is_render
+            *grid_size,
+            items=items,
+            key_queue=self.key_queue,
+            hotkey_funcs=key_funcs,
+            img_dict=img_dict,
+            is_render=is_render,
         )
 
     def shutdown(self):

@@ -3,8 +3,8 @@ from environment.base_environment import *
 
 
 class GridWorld(BaseEnvironment):
-    def __init__(self, row, col, items, *args):
-        super().__init__(row, col, *args)
+    def __init__(self, row, col, items, **kwargs):
+        super().__init__(row, col, **kwargs)
         start_pos = (0, 0)
         self.agent_pos = np.ones(2, dtype=int)
         self.enable_agent_render = True

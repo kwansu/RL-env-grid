@@ -24,7 +24,7 @@ class BaseEnvironment(ABC):
         self,
         row,
         col,
-        key_queue,
+        key_queue=None,
         hotkey_funcs={},
         img_dict={},
         is_render=False,
