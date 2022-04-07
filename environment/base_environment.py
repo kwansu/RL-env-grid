@@ -1,3 +1,4 @@
+import cv2
 import time
 import pygame
 import inspect
@@ -26,12 +27,14 @@ class BaseEnvironment(ABC):
         key_queue,
         hotkey_funcs={},
         img_dict={},
+        is_render=False,
         state_length=100,
         back_color=(128, 128, 128),
         item_back_color=(255, 255, 128),
         selected_back_color=(180, 70, 200),
     ):
         self.is_running = True
+        self.is_render = is_render
         self.state_length = state_length
         Cell.l = self.state_length
         Cell.max_x, Cell.max_y = row - 1, col - 1
@@ -52,11 +55,18 @@ class BaseEnvironment(ABC):
         if self.is_running:
             try:
                 quit_pygame()
-                self.render_thread.join(timeout=10)
+                if self.render_thread:
+                    self.render_thread.join(timeout=10)
             except Exception as e:
                 print(e)
             else:
                 print("render thread shutdown.")
+
+    def get_image(self):
+        view = pygame.surfarray.array3d(self.surface)
+        view = view.transpose([1, 0, 2])
+        img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
+        return img_bgr
 
     def redraw(self):
         row, col = self.state_shape
@@ -84,10 +94,13 @@ class BaseEnvironment(ABC):
         pygame.font.init()
         self.font = pygame.font.SysFont("consolas", 15, True)
 
-        self.render_thread = threading.Thread(
-            target=render_process, args=(self, key_queue, hotkey_funcs)
-        )
-        self.render_thread.start()
+        if self.is_render:
+            self.render_thread = threading.Thread(
+                target=render_process, args=(self, key_queue, hotkey_funcs)
+            )
+            self.render_thread.start()
+        else:
+            render_process(self, key_queue, hotkey_funcs)
 
         for _ in range(100):
             time.sleep(0.01)

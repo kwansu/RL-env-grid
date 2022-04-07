@@ -7,7 +7,7 @@ from environment.grid_world import GridWorld
 
 
 class MainManager:
-    def __init__(self, grid_size=(6, 6), img_dict=None, items=[]):
+    def __init__(self, grid_size=(6, 6), img_dict=None, items=[], is_render=True):
         key_funcs = [
             (f"K_{s[4:].upper()}", s) if len(s) > 5 else (f"K_{s[4:]}", s)
             for s in dir(self)
@@ -20,10 +20,12 @@ class MainManager:
         }
         key_funcs[pygame.BUTTON_LEFT] = self.put_mouse
 
-        self.key_queue = queue.Queue()
+        self.key_queue = queue.Queue() if is_render else None
 
         self.agent = Agent(grid_size)
-        self.env = GridWorld(*grid_size, items, self.key_queue, key_funcs, img_dict)
+        self.env = GridWorld(
+            *grid_size, items, self.key_queue, key_funcs, img_dict, is_render
+        )
 
     def shutdown(self):
         self.env.shutdown()
@@ -49,9 +51,12 @@ class MainManager:
         self.env.reset()
 
     def run(self):
+        if not self.env.is_render:
+            return
+
         while self.env.is_running:
             self.key_put_procedure()
-        
+
         self.shutdown()
 
     def key_put_procedure(self):
