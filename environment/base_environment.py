@@ -7,7 +7,7 @@ import numpy as np
 
 
 from abc import *
-from states import *
+from state import *
 from environment.render_process import *
 
 
@@ -112,7 +112,7 @@ class BaseEnvironment(ABC):
             for key, path in img_dict.items()
         }
 
-        module = __import__("states", fromlist=[None])
+        module = __import__("state", fromlist=[None])
         for class_name, _class in inspect.getmembers(module, inspect.isclass):
             class_name = class_name.lower()
             if class_name in self.sprites.keys():

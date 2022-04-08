@@ -7,7 +7,7 @@ class GridWorld(BaseEnvironment):
         super().__init__(row, col, **kwargs)
         start_pos = (0, 0)
         self.agent_pos = np.ones(2, dtype=int)
-        self.enable_agent_render = True
+        self.enable_agent_render = False
         self.moves = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
         self.moves = {k: np.array(v) for k, v in self.moves.items()}
 
@@ -33,10 +33,10 @@ class GridWorld(BaseEnvironment):
             if state.sprite:
                 state.draw(self.surface, self.item_back_color)
 
-        # if self.enable_agent_render:
-        #     self.surface.blit(
-        #         self.sprites["player"], self.agent_pos * self.state_length
-        #     )
+        if self.enable_agent_render:
+            self.surface.blit(
+                self.sprites["player"], self.agent_pos * self.state_length
+            )
         return tuple(self.agent_pos)
 
     def click_pos(self, pos):

@@ -1,5 +1,5 @@
 import numpy as np
-from states import *
+from state import *
 
 
 class Agent:
