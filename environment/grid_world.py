@@ -22,7 +22,7 @@ class GridWorld(BaseEnvironment):
 
         self.start_item = 0
         self.max_item = max(0, len(self.items) - row + 2)
-        self.update_item()
+        self._update_item()
 
         self.reset()
 
@@ -39,14 +39,19 @@ class GridWorld(BaseEnvironment):
         #     )
         return tuple(self.agent_pos)
 
-    def simulate(self, state, action):
-        pass
-        # if not isinstance(state, State):
-        #     state = self.states[state]
-        # x, y = state.step(action)
-        # return (x, y), self.states[x, y].reward
+    def click_pos(self, pos):
+        if pos > (0, 0) and pos < self.window_size:
+            x, y = map(lambda x: x // self.state_length, pos)
+            if y >= self.state_shape[1]:
+                self._select_item(x)
+            else:
+                self.change_state((x, y), type(self.controls[self.selected_idx]))
 
-    def update_item(self):
+    def change_state(self, pos, state_type):
+        self.states[pos] = state_type(*pos)
+        self.states[pos].redraw(self.surface, self.back_color)
+
+    def _update_item(self):
         for item, i in zip(
             self.items[self.start_item :], range(1, len(self.controls) - 1)
         ):
@@ -58,27 +63,13 @@ class GridWorld(BaseEnvironment):
             self.controls[self.selected_idx].redraw(self.surface, self.item_back_color)
             self.selected_idx = None
 
-    def click_pos(self, pos):
-        if pos > (0, 0) and pos < self.window_size:
-            x, y = map(lambda x: x // self.state_length, pos)
-            if y >= self.state_shape[1]:
-                self.select_item(x)
-            else:
-                self.change_state((x, y))
-
-    def change_state(self, pos):
-        if self.selected_idx:
-            self.states[pos] = type(self.controls[self.selected_idx])(*pos)
-            self.states[pos].sprite = self.controls[self.selected_idx].sprite
-            self.states[pos].redraw(self.surface, self.back_color)
-
-    def select_item(self, x):
+    def _select_item(self, x):
         if x == 0:
             self.start_item = min(max(self.start_item - 1, 0), self.max_item)
-            self.update_item()
+            self._update_item()
         elif x == self.state_shape[0] - 1:
             self.start_item = min(max(self.start_item + 1, 0), self.max_item)
-            self.update_item()
+            self._update_item()
         else:
             if self.selected_idx:
                 self.controls[self.selected_idx].redraw(

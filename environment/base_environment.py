@@ -16,10 +16,6 @@ class BaseEnvironment(ABC):
     def reset(self):
         pass
 
-    @abstractmethod
-    def simulate(self, state, action):
-        pass
-
     def __init__(
         self,
         row,
