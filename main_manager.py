@@ -30,6 +30,7 @@ class MainManager:
             hotkey_funcs=key_funcs,
             img_dict=img_dict,
             is_render=is_render,
+            # state_length=30,
         )
 
     def shutdown(self):

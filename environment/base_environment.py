@@ -88,7 +88,7 @@ class BaseEnvironment(ABC):
 
     def setup_render(self, key_queue, hotkey_funcs, img_dict={}):
         pygame.font.init()
-        self.font = pygame.font.SysFont("consolas", 15, True)
+        self.font = pygame.font.SysFont("consolas", int(self.state_length * 0.18), True)
 
         if self.is_render:
             self.render_thread = threading.Thread(
