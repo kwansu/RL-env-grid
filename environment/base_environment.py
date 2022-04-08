@@ -46,7 +46,7 @@ class BaseEnvironment(ABC):
         self.item_back_color = item_back_color
         self.selected_back_color = selected_back_color
 
-        sprite_path = os.path.dirname(os.path.realpath(__file__)) + "\\sprite\\*.png"
+        sprite_path = os.path.dirname(os.path.abspath(__file__)) + "\\sprite\\*.png"
         img_dict = {splitext(basename(x))[0]: x for x in glob(sprite_path)}
         self._setup_render(key_queue, hotkey_funcs, img_dict)
         self._redraw()
