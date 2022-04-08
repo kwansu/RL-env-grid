@@ -26,6 +26,12 @@ class GridWorld(BaseEnvironment):
 
     def reset(self):
         self.agent_pos = self.start_pos
+        self.set_render_policy(False)
+        self.set_render_value(False)
+        self.redraw()
+        return tuple(self.agent_pos)
+
+    def redraw(self):
         self._redraw()
         for state in self.controls:
             if state.sprite:
@@ -35,7 +41,6 @@ class GridWorld(BaseEnvironment):
             self.surface.blit(
                 self.sprites["player"], self.agent_pos * self.state_length
             )
-        return tuple(self.agent_pos)
 
     def change_state(self, pos, state_type):
         self.states[pos] = state_type(*pos)

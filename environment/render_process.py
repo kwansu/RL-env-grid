@@ -9,7 +9,7 @@ def render_process(env, key_queue, hotkey_dict={}):
     env.surface = pygame.display.set_mode(env.window_size)
     print(*env.state_shape)
 
-    if not env.is_render:
+    if not key_queue:
         return
 
     try:

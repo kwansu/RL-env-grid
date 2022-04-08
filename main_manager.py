@@ -7,8 +7,9 @@ from environment.grid_world import GridWorld
 
 import numpy as np
 
+
 class MainManager:
-    def __init__(self, grid_size=(6, 6), img_dict=None, items=[], is_render=True):
+    def __init__(self, grid_size=(6, 6), is_render=False, **kwargs):
         key_funcs = [
             (f"K_{s[4:].upper()}", s) if len(s) > 5 else (f"K_{s[4:]}", s)
             for s in dir(self)
@@ -20,26 +21,13 @@ class MainManager:
             getattr(pygame, k): getattr(self, v) for k, v in key_funcs if k in keys
         }
         key_funcs[pygame.BUTTON_LEFT] = self.put_mouse
+        kwargs["hotkey_funcs"] = key_funcs
 
         self.key_queue = queue.Queue() if is_render else None
+        kwargs["key_queue"] = self.key_queue
 
         self.agent = Agent(grid_size)
-        self.env = GridWorld(
-            *grid_size,
-            items=items,
-            key_queue=self.key_queue,
-            hotkey_funcs=key_funcs,
-            img_dict=img_dict,
-            is_render=is_render,
-            # state_length=30,
-        )
-
-        self.env.change_state((0, 0), Goal)
-
-        a = np.zeros(grid_size)
-        a[4, 1] = -10.1
-        self.env.draw_values(a)
-
+        self.env = GridWorld(*grid_size, is_render=is_render, **kwargs)
 
     def shutdown(self):
         self.env.shutdown()
@@ -48,7 +36,12 @@ class MainManager:
         self.env.click_pos(pos)
 
     def put_a(self, key):
-        self.env.reset()
+        State.render_policy = not State.render_policy
+        self.env.redraw()
+
+    def put_s(self, key):
+        State.render_value = not State.render_value
+        self.env.redraw()
 
     def put_space(self, key):
         self.agent.evaluate_policy(self.env.states)

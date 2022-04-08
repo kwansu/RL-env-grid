@@ -1,3 +1,4 @@
+import os
 import cv2
 import time
 import pygame
@@ -5,8 +6,10 @@ import inspect
 import threading
 import numpy as np
 
-
 from abc import *
+from glob import glob
+from os.path import basename, splitext
+
 from state import *
 from environment.render_process import *
 
@@ -22,7 +25,6 @@ class BaseEnvironment(ABC):
         col,
         key_queue=None,
         hotkey_funcs={},
-        img_dict={},
         is_render=False,
         state_length=100,
         back_color=(128, 128, 128),
@@ -39,11 +41,13 @@ class BaseEnvironment(ABC):
         self.window_size = (row * state_length, (col + 1) * state_length)
         self.state_shape = (row, col)
 
+        self.surface = None
         self.back_color = back_color
         self.item_back_color = item_back_color
         self.selected_back_color = selected_back_color
 
-        self.surface = None
+        sprite_path = os.path.dirname(os.path.realpath(__file__)) + "\\sprite\\*.png"
+        img_dict = {splitext(basename(x))[0]: x for x in glob(sprite_path)}
         self._setup_render(key_queue, hotkey_funcs, img_dict)
         self._redraw()
 
@@ -76,8 +80,7 @@ class BaseEnvironment(ABC):
 
         for line in self.states:
             for state in line:
-                if state.sprite:
-                    state.draw(self.surface, self.back_color)
+                state.draw(self.surface, self.back_color)
 
     def _draw_grid(self):
         w, h = self.window_size
