@@ -44,7 +44,7 @@ class BaseEnvironment(ABC):
         self.selected_back_color = selected_back_color
 
         self.surface = None
-        self.setup_render(key_queue, hotkey_funcs, img_dict)
+        self._setup_render(key_queue, hotkey_funcs, img_dict)
         self.redraw()
 
     def shutdown(self):
@@ -72,21 +72,21 @@ class BaseEnvironment(ABC):
         )
         pygame.display.flip()
 
-        self.draw_grid()
+        self._draw_grid()
 
         for line in self.states:
             for state in line:
                 if state.sprite:
                     state.draw(self.surface, self.back_color)
 
-    def draw_grid(self):
+    def _draw_grid(self):
         w, h = self.window_size
         for x in range(0, w, self.state_length):
             pygame.draw.line(self.surface, (0, 0, 0, 50), (x, 0), (x, h))
         for y in range(0, h, self.state_length):
             pygame.draw.line(self.surface, (0, 0, 0, 50), (0, y), (w, y))
 
-    def setup_render(self, key_queue, hotkey_funcs, img_dict={}):
+    def _setup_render(self, key_queue, hotkey_funcs, img_dict={}):
         pygame.font.init()
         self.font = pygame.font.SysFont("consolas", int(self.state_length * 0.18), True)
 
@@ -125,5 +125,5 @@ class BaseEnvironment(ABC):
             self.sprites["right"],
         ]
 
-    def quit_callback(self):
+    def _quit_callback(self):
         self.is_running = False
