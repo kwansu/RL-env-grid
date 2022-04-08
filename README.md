@@ -137,4 +137,6 @@ cv2_imshow(env.get_image())
 
 <br/>
 
+- 자세한 구동방법은 RL_grid_world_test.ipynb를 참고
+
 - 이제 자유롭게 환경(state들의 배치)을 구성하고, 구성된 환경에서의 prediction(정해진 policy에 대한 올바른 value 구하기), control(정해진 환경에서의 최적의 policy 구하기)을 구해보자.
