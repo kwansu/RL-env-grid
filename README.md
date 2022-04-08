@@ -1,6 +1,8 @@
 # RL 그리드 환경
 - 그리드 환경의 state, action, reward, transition probability을 제공.
 - 주어진 그리드 환경에서 control, prediction 연습용.
+- 환경에 custom state(transition prob, reward 변형)를 클래스로 등록가능하고 자유롭게 배치할 수 있다.
+- 구한 value, policy를 환경에 입력으로 주어서 화면에 출력가능.
 
 <br/>
 
@@ -137,6 +139,6 @@ cv2_imshow(env.get_image())
 
 <br/>
 
-- 자세한 구동방법은 RL_grid_world_test.ipynb를 참고
+- 자세한 구동방법은 [RL_grid_world_test.ipynb](https://github.com/kwansu/RL-env-grid/blob/main/RL_grid_world_test.ipynb)를 참고
 
 - 이제 자유롭게 환경(state들의 배치)을 구성하고, 구성된 환경에서의 prediction(정해진 policy에 대한 올바른 value 구하기), control(정해진 환경에서의 최적의 policy 구하기)을 구해보자.
