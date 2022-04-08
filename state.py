@@ -43,12 +43,13 @@ class State(Cell):
 
     def draw(self, surface, back_color):
         self.redraw(surface, back_color)
-        if self.render_value and self.text_top_left:
-            surface.blit(self.value, self.text_top_left)
-        if self.render_policy:
-            for sprite, p in zip(self.policy_sprites, self.policy):
-                sprite.set_alpha(p * 255)
-                surface.blit(sprite, self.top_left)
+        if not self.is_terminal:
+            if self.render_value and self.text_top_left:
+                surface.blit(self.value, self.text_top_left)
+            if self.render_policy:
+                for sprite, p in zip(self.policy_sprites, self.policy):
+                    sprite.set_alpha(p * 255)
+                    surface.blit(sprite, self.top_left)
 
     def set_value(self, text, font, color=(0, 0, 255)):
         self.value = font.render(text, True, color)

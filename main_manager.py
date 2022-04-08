@@ -5,6 +5,7 @@ from state import *
 from agent import Agent
 from environment.grid_world import GridWorld
 
+import numpy as np
 
 class MainManager:
     def __init__(self, grid_size=(6, 6), img_dict=None, items=[], is_render=True):
@@ -33,6 +34,13 @@ class MainManager:
             # state_length=30,
         )
 
+        self.env.change_state((0, 0), Goal)
+
+        a = np.zeros(grid_size)
+        a[4, 1] = -10.1
+        self.env.draw_values(a)
+
+
     def shutdown(self):
         self.env.shutdown()
 
@@ -43,12 +51,10 @@ class MainManager:
         self.env.reset()
 
     def put_space(self, key):
-        State.render_value = True
         self.agent.evaluate_policy(self.env.states)
         self.env.draw_values(self.agent.state_values)
 
     def put_t(self, key):
-        State.render_policy = True
         self.agent.imporve_policy(self.env.states)
         self.env.draw_policy(self.agent.policy)
 

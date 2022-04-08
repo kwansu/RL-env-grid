@@ -32,12 +32,12 @@ class BaseEnvironment(ABC):
         self.is_running = True
         self.is_render = is_render
         self.state_length = state_length
+
         Cell.l = self.state_length
         Cell.max_x, Cell.max_y = row - 1, col - 1
         self.states = np.array([[State(x, y) for y in range(col)] for x in range(row)])
         self.window_size = (row * state_length, (col + 1) * state_length)
         self.state_shape = (row, col)
-        self.actions = ("up", "down", "left", "right")
 
         self.back_color = back_color
         self.item_back_color = item_back_color
@@ -45,7 +45,7 @@ class BaseEnvironment(ABC):
 
         self.surface = None
         self._setup_render(key_queue, hotkey_funcs, img_dict)
-        self.redraw()
+        self._redraw()
 
     def shutdown(self):
         if self.is_running:
@@ -64,7 +64,7 @@ class BaseEnvironment(ABC):
         img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
         return img_bgr
 
-    def redraw(self):
+    def _redraw(self):
         row, col = self.state_shape
         self.surface.fill(self.item_back_color)
         self.surface.fill(

@@ -18,7 +18,7 @@ def render_process(env, key_queue, hotkey_dict={}):
                 if event.type == pygame.QUIT:
                     print("running = False")
                     is_running = False
-                    env.quit_callback()
+                    env._quit_callback()
 
                 if event.type == pygame.KEYDOWN:
                     if event.key in hotkey_dict.keys():

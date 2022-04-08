@@ -8,8 +8,6 @@ class GridWorld(BaseEnvironment):
         start_pos = (0, 0)
         self.agent_pos = np.ones(2, dtype=int)
         self.enable_agent_render = False
-        self.moves = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
-        self.moves = {k: np.array(v) for k, v in self.moves.items()}
 
         self.start_pos = np.array(start_pos, dtype=int)
 
@@ -28,7 +26,7 @@ class GridWorld(BaseEnvironment):
 
     def reset(self):
         self.agent_pos = self.start_pos
-        self.redraw()
+        self._redraw()
         for state in self.controls:
             if state.sprite:
                 state.draw(self.surface, self.item_back_color)
@@ -39,6 +37,10 @@ class GridWorld(BaseEnvironment):
             )
         return tuple(self.agent_pos)
 
+    def change_state(self, pos, state_type):
+        self.states[pos] = state_type(*pos)
+        self.states[pos].redraw(self.surface, self.back_color)
+
     def click_pos(self, pos):
         if pos > (0, 0) and pos < self.window_size:
             x, y = map(lambda x: x // self.state_length, pos)
@@ -46,10 +48,6 @@ class GridWorld(BaseEnvironment):
                 self._select_item(x)
             else:
                 self.change_state((x, y), type(self.controls[self.selected_idx]))
-
-    def change_state(self, pos, state_type):
-        self.states[pos] = state_type(*pos)
-        self.states[pos].redraw(self.surface, self.back_color)
 
     def _update_item(self):
         for item, i in zip(
@@ -83,6 +81,8 @@ class GridWorld(BaseEnvironment):
 
     def draw_values(self, state_values):
         assert state_values.shape == self.state_shape
+        self.set_render_value(True)
+
         for o, v in zip(np.nditer(self.states, ["refs_ok"]), np.nditer(state_values)):
             state = o.item()
             state.set_value(str(np.round(v, 3)), self.font)
@@ -90,6 +90,8 @@ class GridWorld(BaseEnvironment):
 
     def draw_policy(self, policy):
         assert policy.shape[:2] == self.state_shape
+        self.set_render_policy(True)
+
         for x in range(self.state_shape[0]):
             for y in range(self.state_shape[1]):
                 state = self.states[x, y]
@@ -97,3 +99,8 @@ class GridWorld(BaseEnvironment):
                     state.set_policy(policy[x, y])
                     state.draw(self.surface, self.back_color)
 
+    def set_render_value(self, enable):
+        State.render_value = enable
+
+    def set_render_policy(self, enable):
+        State.render_policy = enable
