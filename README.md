@@ -35,5 +35,6 @@ screen_image = env.get_image()
 cv2_imshow(screen_image)
 ```
 
-![11](https://user-images.githubusercontent.com/15683086/162459574-96c1f516-dea3-4dce-b93c-676b7952641b.png)
+![11](https://user-images.githubusercontent.com/15683086/162460031-0b016b2d-ac34-4040-afc0-914c531aeb11.png)
+
 
