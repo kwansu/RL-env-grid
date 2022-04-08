@@ -133,7 +133,7 @@ env.draw_value(values)
 cv2_imshow(env.get_image())
 ```
 
-
+![22](https://user-images.githubusercontent.com/15683086/162486748-5d4ba44c-c994-4f98-9765-bcf7c7b4b3e5.png)
 
 <br/>
 
