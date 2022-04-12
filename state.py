@@ -1,4 +1,5 @@
 import pygame
+from random import random
 
 
 class Cell:
@@ -102,21 +103,22 @@ class Pusher(State):
         return {(x, y): 1.0}
 
 
-# class PuserUp(Puser):
-#     def __init__(self, x, y, sprite=None):
-#         super().__init__(x, y, (0, -1), sprite)
+class Swamp(State):
+    def __init__(self, x, y, is_terminal=False):
+        super().__init__(x, y, is_terminal)
+        self.reward = -2
 
-
-# class PuserDown(Puser):
-#     def __init__(self, x, y, sprite=None):
-#         super().__init__(x, y, (0, 1), sprite)
-
-
-# class PuserLeft(Puser):
-#     def __init__(self, x, y, sprite=None):
-#         super().__init__(x, y, (-1, 0), sprite)
-
-
-# class PuserRight(Puser):
-#     def __init__(self, x, y, sprite=None):
-#         super().__init__(x, y, (1, 0), sprite)
+    def get_action_trans_prob(self, action):
+        if random() >= 0.5:
+            return {self.pos: 1.0}
+        
+        x, y = self.pos
+        if action == "up":
+            y -= 1
+        elif action == "down":
+            y += 1
+        elif action == "left":
+            x -= 1
+        else:
+            x += 1
+        return {self.fix_pos(x, y): 1.0}
