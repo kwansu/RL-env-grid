@@ -32,7 +32,6 @@ class BaseEnvironment(ABC):
         selected_back_color=(180, 70, 200),
     ):
         self.is_running = True
-        self.is_render = is_render
         self.state_length = state_length
 
         Cell.l = self.state_length
@@ -49,7 +48,8 @@ class BaseEnvironment(ABC):
         sprite_path = os.path.dirname(os.path.abspath(__file__)) + "/sprite/*.png"
         img_dict = {splitext(basename(x))[0]: x for x in glob(sprite_path)}
         assert img_dict, sprite_path
-        self._setup_render(key_queue, hotkey_funcs, img_dict)
+
+        self.setup_render(img_dict, key_queue=key_queue, hotkey_funcs=hotkey_funcs)
         self._redraw()
 
     def shutdown(self):
@@ -90,17 +90,18 @@ class BaseEnvironment(ABC):
         for y in range(0, h, self.state_length):
             pygame.draw.line(self.surface, (0, 0, 0, 50), (0, y), (w, y))
 
-    def _setup_render(self, key_queue, hotkey_funcs, img_dict={}):
+    def setup_render(self, img_dict={}, key_queue=None, hotkey_funcs={}):
         pygame.font.init()
         self.font = pygame.font.SysFont("consolas", int(self.state_length * 0.18), True)
 
-        if self.is_render:
+        if key_queue and hotkey_funcs:
             self.render_thread = threading.Thread(
                 target=render_process, args=(self, key_queue, hotkey_funcs)
             )
             self.render_thread.start()
         else:
-            render_process(self, key_queue, hotkey_funcs)
+            pygame.init()
+            self.surface = pygame.display.set_mode(self.window_size)
 
         for _ in range(100):
             time.sleep(0.01)
@@ -129,5 +130,5 @@ class BaseEnvironment(ABC):
             self.sprites["right"],
         ]
 
-    def _quit_callback(self):
+    def quit_callback(self):
         self.is_running = False

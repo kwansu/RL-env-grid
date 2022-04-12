@@ -3,11 +3,9 @@ import pygame
 
 
 def render_process(env, key_queue, hotkey_dict={}):
-    is_running = True
-
     pygame.init()
     env.surface = pygame.display.set_mode(env.window_size)
-    print(*env.state_shape)
+    is_running = True
 
     if not key_queue:
         return
@@ -18,7 +16,7 @@ def render_process(env, key_queue, hotkey_dict={}):
                 if event.type == pygame.QUIT:
                     print("running = False")
                     is_running = False
-                    env._quit_callback()
+                    env.quit_callback()
 
                 if event.type == pygame.KEYDOWN:
                     if event.key in hotkey_dict.keys():
