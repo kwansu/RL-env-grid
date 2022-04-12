@@ -64,8 +64,12 @@ class GridWorld(BaseEnvironment):
         else:
             assert False, "sum of p is not 1.0"
 
+        next_state = self.states[self.agent_pos]
+        if next_state.is_terminal:
+            self.reset()
+
         self.draw_agent()
-        return self.agent_pos, self.states[self.agent_pos].reward
+        return self.agent_pos, next_state.reward
 
     def change_state(self, pos, state_type):
         self.states[pos] = state_type(*pos)

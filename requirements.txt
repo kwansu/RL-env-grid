@@ -1,0 +1,3 @@
+pip numpy
+pip install pygame
+pip install cv2

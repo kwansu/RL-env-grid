@@ -104,21 +104,16 @@ class Pusher(State):
 
 
 class Swamp(State):
-    def __init__(self, x, y, is_terminal=False):
-        super().__init__(x, y, is_terminal)
-        self.reward = -2
-
     def get_action_trans_prob(self, action):
-        if random() >= 0.5:
-            return {self.pos: 1.0}
-        
         x, y = self.pos
-        if action == "up":
-            y -= 1
-        elif action == "down":
-            y += 1
-        elif action == "left":
-            x -= 1
-        else:
-            x += 1
-        return {self.fix_pos(x, y): 1.0}
+        p1 = x + 1, y
+        p2 = x - 1, y
+        p3 = x, y + 1
+        p4 = x, y - 1
+
+        return {
+            self.fix_pos(*p1): 0.25,
+            self.fix_pos(*p2): 0.25,
+            self.fix_pos(*p3): 0.25,
+            self.fix_pos(*p4): 0.25,
+        }

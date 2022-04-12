@@ -44,6 +44,18 @@ class MainManager:
         self.agent.reset()
         self.env.reset()
 
+    def put_up(self, key):
+        self.env.step("up")
+
+    def put_down(self, key):
+        self.env.step("down")
+
+    def put_left(self, key):
+        self.env.step("left")
+
+    def put_right(self, key):
+        self.env.step("right")
+        
     def put_h(self, key):
         self.env.enable_agent_render = not self.env.enable_agent_render
         self.env.draw_agent()
