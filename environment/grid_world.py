@@ -1,3 +1,4 @@
+from random import random
 import numpy as np
 from environment.base_environment import *
 
@@ -6,10 +7,9 @@ class GridWorld(BaseEnvironment):
     def __init__(self, row, col, items, **kwargs):
         super().__init__(row, col, **kwargs)
         start_pos = (0, 0)
-        self.agent_pos = np.ones(2, dtype=int)
+        self.start_pos = start_pos
+        self.agent_pos = start_pos
         self.enable_agent_render = False
-
-        self.start_pos = np.array(start_pos, dtype=int)
 
         self.selected_idx = None
 
@@ -29,7 +29,7 @@ class GridWorld(BaseEnvironment):
         self.set_render_policy(False)
         self.set_render_value(False)
         self.redraw()
-        return tuple(self.agent_pos)
+        return self.agent_pos
 
     def redraw(self):
         self._redraw()
@@ -37,10 +37,35 @@ class GridWorld(BaseEnvironment):
             if state.sprite:
                 state.draw(self.surface, self.item_back_color)
 
+        self.draw_agent()
+
+    def draw_agent(self):
         if self.enable_agent_render:
             self.surface.blit(
-                self.sprites["player"], self.agent_pos * self.state_length
+                self.sprites["player"],
+                (
+                    self.agent_pos[0] * self.state_length,
+                    self.agent_pos[1] * self.state_length,
+                ),
             )
+        else:
+            self.states[self.agent_pos].redraw(self.surface, self.back_color)
+
+    def step(self, action):
+        state = self.states[self.agent_pos]
+        state.redraw(self.surface, self.back_color)
+
+        r, t = random(), 0
+        for v, p in state.get_action_trans_prob(action).items():
+            t += p
+            if t + 1e-6 >= r:
+                self.agent_pos = v
+                break
+        else:
+            assert False, "sum of p is not 1.0"
+
+        self.draw_agent()
+        return self.agent_pos, self.states[self.agent_pos].reward
 
     def change_state(self, pos, state_type):
         self.states[pos] = state_type(*pos)

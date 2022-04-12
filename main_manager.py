@@ -6,8 +6,6 @@ from state import *
 from agent import Agent
 from environment.grid_world import GridWorld
 
-import numpy as np
-
 
 class MainManager:
     def __init__(self, grid_size=(6, 6), enable_multi_thread=False, **kwargs):
@@ -45,6 +43,10 @@ class MainManager:
     def put_r(self, key):
         self.agent.reset()
         self.env.reset()
+
+    def put_h(self, key):
+        self.env.enable_agent_render = not self.env.enable_agent_render
+        self.env.draw_agent()
 
     def get_hotkey(self):
         hotkey_dict = [
