@@ -51,3 +51,20 @@ class Agent:
                         max_count += 1
                         self.policy[x, y, i] = 1
                 self.policy[x, y] /= max_count
+
+    def value_iteration(self, states):
+        copy = self.state_values.copy()
+        row, col = self.state_values.shape
+        for x in range(row):
+            for y in range(col):
+                if states[x, y].is_terminal:
+                    continue
+                max_v = float("-inf")
+                for action in self.actions:
+                    q = 0
+                    for pos, p in states[x, y].get_action_trans_prob(action).items():
+                        q += p * (states[pos].reward + self.gamma * copy[pos])
+
+                    max_v = max(max_v, q)
+
+                self.state_values[x, y] = max_v

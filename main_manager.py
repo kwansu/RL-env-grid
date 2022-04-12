@@ -24,6 +24,10 @@ class MainManager:
     def put_mouse(self, pos):
         self.env.click_pos(pos)
 
+    def put_k(self, key):
+        self.env.value_iteration(self.env.states)
+        self.env.redraw()
+
     def put_a(self, key):
         State.render_policy = not State.render_policy
         self.env.redraw()
@@ -39,6 +43,10 @@ class MainManager:
     def put_t(self, key):
         self.agent.imporve_policy(self.env.states)
         self.env.draw_policy(self.agent.policy)
+
+    def put_v(self, key):
+        self.agent.value_iteration(self.env.states)
+        self.env.draw_values(self.agent.state_values)
 
     def put_r(self, key):
         self.agent.reset()
